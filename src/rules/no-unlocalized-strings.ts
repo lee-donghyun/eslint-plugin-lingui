@@ -16,6 +16,28 @@ const getJSXAttribute = (node: TSESTree.Literal) => {
   return parent;
 };
 
+const isAsConstExpression = (
+  node: TSESTree.Literal | TSESTree.TemplateLiteral
+) => {
+  return (
+    node.parent.type === AST_NODE_TYPES.TSAsExpression &&
+    node.parent.typeAnnotation.type === AST_NODE_TYPES.TSTypeReference &&
+    node.parent.typeAnnotation.typeName.type === AST_NODE_TYPES.Identifier &&
+    node.parent.typeAnnotation.typeName.name === "const"
+  );
+};
+
+const isTemplateLiteralExpression = (
+  node: TSESTree.TemplateLiteral,
+  name: string
+) => {
+  return (
+    node.parent.type === AST_NODE_TYPES.TaggedTemplateExpression &&
+    node.parent.tag.type == AST_NODE_TYPES.Identifier &&
+    node.parent.tag.name === name
+  );
+};
+
 export const noUnlocalizedString = createRule<
   [{ ignoreAttributes?: string[]; ignore?: string[] }],
   "default" | "forJsxText" | "forAttribute"
@@ -65,6 +87,7 @@ export const noUnlocalizedString = createRule<
     const isIgnoredLiteral = (literal: string) => {
       return ignore.some((regex) => new RegExp(regex, "u").test(literal));
     };
+
     return {
       "JSXAttribute Literal"(node: TSESTree.Literal) {
         const attribute = getJSXAttribute(node);
@@ -77,10 +100,23 @@ export const noUnlocalizedString = createRule<
       ) {
         skip.add(node);
       },
-      'TaggedTemplateExpression[tag.name.name="t"]  TemplateLiteral'(node) {
-        skip.add(node);
+      "TemplateLiteral:exit"(node) {
+        if (
+          node.quasis.every((quasi) => isIgnoredLiteral(quasi.value.cooked))
+        ) {
+          return;
+        }
+        if (
+          isTemplateLiteralExpression(node, "t") ||
+          isTemplateLiteralExpression(node, "msg")
+        ) {
+          return;
+        }
+        if (isAsConstExpression(node)) {
+          return;
+        }
+        context.report({ messageId: "default", node });
       },
-
       "Literal:exit"(node) {
         if (skip.has(node)) {
           skip.delete(node);
@@ -95,13 +131,7 @@ export const noUnlocalizedString = createRule<
         if (isIgnoredLiteral(node.value)) {
           return;
         }
-        if (
-          node.parent.type === AST_NODE_TYPES.TSAsExpression &&
-          node.parent.typeAnnotation.type === AST_NODE_TYPES.TSTypeReference &&
-          node.parent.typeAnnotation.typeName.type ===
-            AST_NODE_TYPES.Identifier &&
-          node.parent.typeAnnotation.typeName.name === "const"
-        ) {
+        if (isAsConstExpression(node)) {
           return;
         }
         context.report({ messageId: "default", node });
