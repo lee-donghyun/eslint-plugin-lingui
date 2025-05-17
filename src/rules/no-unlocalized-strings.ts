@@ -4,7 +4,10 @@ import {
   TSESTree,
 } from "@typescript-eslint/utils";
 
-const createRule = ESLintUtils.RuleCreator((name) => "https://" + name);
+const createRule = ESLintUtils.RuleCreator(
+  () =>
+    `https://github.com/lee-donghyun/eslint-plugin-lingui/blob/main/README.md`
+);
 
 const skip = new WeakSet();
 
@@ -42,7 +45,7 @@ export const noUnlocalizedString = createRule<
   [{ ignoreAttributes?: string[]; ignore?: string[] }],
   "default" | "forJsxText" | "forAttribute"
 >({
-  name: "@lee-donghyun/lingui/no-unlocalized-strings",
+  name: "no-unlocalized-strings",
   meta: {
     docs: {
       description: "Disallow unlocalized strings",
