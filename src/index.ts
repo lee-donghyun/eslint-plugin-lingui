@@ -17,21 +17,21 @@ interface Plugin extends Omit<ESLint.Plugin, "rules"> {
 
 const plugin = {
   meta: {
-    name: "@lee-donghyun/eslint-plugin-lingui",
+    name: "@lee-donghyun/lingui",
   },
   configs: {} as Plugin["configs"],
   rules,
 } satisfies Plugin;
 
 const recommendedRules: {
-  [K in RuleKey as `@lee-donghyun/eslint-plugin-lingui/${K}`]?: FlatConfig.RuleLevel;
+  [K in RuleKey as `@lee-donghyun/lingui/${K}`]?: FlatConfig.RuleLevel;
 } = {
-  "@lee-donghyun/eslint-plugin-lingui/no-unlocalized-strings": "error",
+  "@lee-donghyun/lingui/no-unlocalized-strings": "error",
 };
 
 Object.assign(plugin.configs, {
   recommended: {
-    plugins: { "@lee-donghyun/eslint-plugin-lingui": plugin },
+    plugins: { "@lee-donghyun/lingui": plugin },
     rules: recommendedRules,
   },
 });
