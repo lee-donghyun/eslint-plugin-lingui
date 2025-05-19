@@ -7,13 +7,14 @@ settings:
 importers:
 
   .:
-    devDependencies:
+    dependencies:
       '@typescript-eslint/utils':
         specifier: ^8.32.1
         version: 8.32.1(eslint@9.27.0)(typescript@5.8.3)
       eslint:
         specifier: ^9.27.0
         version: 9.27.0
+    devDependencies:
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(typescript@5.8.3)
